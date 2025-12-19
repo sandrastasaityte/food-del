@@ -1,17 +1,16 @@
-import React from 'react'
-import './Navbar.css'
-import {assets} from '../../assets/assets'
-
-
+import React from "react";
+import { UserButton } from "@clerk/clerk-react";
+import "./Navbar.css";
 
 const Navbar = () => {
   return (
-    <div className='navbar'>
-        <img className='logo' src={assets.logo} alt="" />
-        <img className='profile' src={assets.profile_image} />
-      
-    </div>
-  )
-}
+    <nav className="navbar">
+      <div className="logo">MangoMuse Admin</div>
+      <div className="user-controls">
+        <UserButton />
+      </div>
+    </nav>
+  );
+};
 
-export default Navbar
+export default Navbar;
