@@ -1,24 +1,31 @@
+:root{
+  --bg: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: rgba(17,24,39,.12);
+  --shadow: 0 10px 25px rgba(0,0,0,.08);
+  --radius: 16px;
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Prata&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+  --brand: #ff4c24;
+  --brand2:#ff7a45;
 
-
-*{
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: Outfit;
-  scroll-behavior: smooth;
+  --container: 1200px;
 }
+
+*{ box-sizing: border-box; }
+html, body { height: 100%; }
 body{
-  min-height: 100vh;
-}
-a{
-  text-decoration: none;
-  color: inherit;
-}
-.app{                       /*makes space in the left and right side for menu if it is too crowded change it */
-  width: 80%;
-  margin: auto;
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
 }
 
+a{ color: inherit; text-decoration: none; }
+img{ max-width: 100%; display: block; }
 
+.app{
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 16px;
+}

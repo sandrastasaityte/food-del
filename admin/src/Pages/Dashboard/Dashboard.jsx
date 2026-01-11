@@ -1,33 +1,47 @@
-// src/pages/Dashboard/Dashboard.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import './Dashboard.css';
-import { assets } from '../../assets/assets';
+import { api, getApiErrorMessage } from "../../api/api";
+import "./Dashboard.css";
+import { assets } from "../../assets/assets";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const url = "http://localhost:4000"; // backend URL
   const [stats, setStats] = useState({
-    totalItems: 0,
+    totalProducts: 0,
     totalOrders: 0,
-    recentOrders: [],
+    pendingOrders: 0,
+    revenue: 0,
   });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchStats = async () => {
+    setLoading(true);
     try {
-      const [itemsRes, ordersRes] = await Promise.all([
-        axios.get(`${url}/api/food/list`),
-        axios.get(`${url}/api/order/list`)
+      const [productsRes, ordersRes] = await Promise.all([
+        api.get("/api/food/list"),
+        api.get("/api/order/list"),
       ]);
 
-      const totalItems = itemsRes.data.success ? itemsRes.data.data.length : 0;
-      const totalOrders = ordersRes.data.success ? ordersRes.data.data.length : 0;
-      const recentOrders = ordersRes.data.success ? ordersRes.data.data.slice(-5).reverse() : [];
+      const products = productsRes.data?.data || [];
+      const orders = ordersRes.data?.data || [];
 
-      setStats({ totalItems, totalOrders, recentOrders });
+      const revenue = orders.reduce(
+        (acc, o) => acc + (Number(o.amount) || 0),
+        0
+      );
+      const pendingOrders = orders.filter(o => o.status !== "Delivered").length;
+
+      setStats({
+        totalProducts: products.length,
+        totalOrders: orders.length,
+        pendingOrders,
+        revenue,
+      });
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch dashboard stats");
+      toast.error(getApiErrorMessage(err, "Failed to fetch dashboard stats"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,40 +49,55 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
+  const cardData = [
+    {
+      label: "Total Products",
+      value: stats.totalProducts,
+      icon: assets.add_icon,
+      action: () => navigate("/list"),
+    },
+    {
+      label: "Total Orders",
+      value: stats.totalOrders,
+      icon: assets.parcel_icon,
+      action: () => navigate("/orders"),
+    },
+    {
+      label: "Pending Orders",
+      value: stats.pendingOrders,
+      icon: assets.parcel_icon,
+      action: () => navigate("/orders"),
+    },
+    {
+      label: "Revenue (£)",
+      value: stats.revenue.toFixed(2),
+      icon: assets.dashboard_icon,
+      action: () => {},
+    },
+  ];
+
   return (
-    <div className="dashboard">
+    <div className="dashboard-page">
       <h2>Admin Dashboard</h2>
+      <p className="muted">Quick overview of your products and orders</p>
+
       <div className="dashboard-cards">
-        <div className="card">
-          <img src={assets.list_icon} alt="Items" />
-          <div>
-            <p>Total Items</p>
-            <h3>{stats.totalItems}</h3>
+        {cardData.map(({ label, value, icon, action }, i) => (
+          <div
+            key={i}
+            className="dashboard-card"
+            onClick={action}
+            role={action ? "button" : undefined}
+          >
+            <div className="card-icon">
+              <img src={icon} alt={label} />
+            </div>
+            <div className="card-info">
+              <p className="card-value">{loading ? "..." : value}</p>
+              <p className="card-label">{label}</p>
+            </div>
           </div>
-        </div>
-
-        <div className="card">
-          <img src={assets.order_icon} alt="Orders" />
-          <div>
-            <p>Total Orders</p>
-            <h3>{stats.totalOrders}</h3>
-          </div>
-        </div>
-      </div>
-
-      <div className="recent-orders">
-        <h3>Recent Orders</h3>
-        {stats.recentOrders.length === 0 ? (
-          <p>No recent orders</p>
-        ) : (
-          <ul>
-            {stats.recentOrders.map((order) => (
-              <li key={order._id}>
-                {order.address_firstName} {order.address_lastName} - ${order.amount}
-              </li>
-            ))}
-          </ul>
-        )}
+        ))}
       </div>
     </div>
   );

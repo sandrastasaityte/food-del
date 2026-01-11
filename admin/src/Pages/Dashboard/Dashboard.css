@@ -1,4 +1,59 @@
-<NavLink to='/dashboard' className="sidebar-option">
-  <img src={assets.dashboard_icon} alt="Dashboard" />
-  <p>Dashboard</p>
-</NavLink>
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-page h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.dashboard-page .muted {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.dashboard-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-icon img {
+  width: 36px;
+  height: 36px;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-value {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.card-label {
+  font-size: 0.875rem;
+  color: #888;
+}

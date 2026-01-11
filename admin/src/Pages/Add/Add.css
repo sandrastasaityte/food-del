@@ -1,45 +1,90 @@
 .add {
-    width: 70%;
-    margin-left: max(5vw, 25px);
-    margin-top: 50px;
-    color: #6d6d6d;
-    font-size: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* spacing between sections */
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.add form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.add-head h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
 }
 
-.add-img-upload img {
-    width: 120px;
-    border-radius: 8px; /* optional styling */
+.add-head .muted {
+  font-size: 0.875rem;
+  color: #666;
 }
 
-.add-product-name input,
-.add-product-description textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.add-image-upload {
+  align-items: center;
+}
+
+.upload-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  width: 200px;
+  text-align: center;
+}
+
+.upload-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.add-category,
+.add-price {
+  gap: 0.5rem;
 }
 
 .add-btn {
-    max-width: 120px;
-    border: none;
-    padding: 10px;
-    background-color: black;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: 0.3s;
+  background: #ff6b6b;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 1rem;
 }
 
-.add-btn:hover {
-    background-color: #333;
+.add-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.inline-error {
+  color: #d9534f;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
 }

@@ -1,94 +1,148 @@
 .cart{
-    margin-top:100px;
-
-    
+  margin-top: 16px;
+  display: grid;
+  gap: 18px;
 }
+
+.cart-items{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  overflow: hidden;
+}
+
 .cart-items-title{
-    display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 0.5fr;
-    align-items: center;
-    color: grey;
-    font-size: max(1vw,12px);
-
+  display: grid;
+  grid-template-columns: 90px 1.6fr 0.7fr 0.7fr 0.7fr 0.4fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
 }
+
 .cart-items-item{
-    margin: 10px 0px;
-    color: black;
+  color: var(--text);
+  font-weight: 600;
 }
+
 .cart-items-item img{
-    width: 50px;
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
 }
-.cart hr{
-    height: 1px;
-    background-color: #e2e2e2;
-    border: none;
+
+.cart-items hr{
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
 }
-.cart-items-item .cross{
-    cursor: pointer;
+
+.cross{
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
 }
+.cross:hover{
+  color: #ef4444;
+}
+
 .cart-bottom{
-    margin-top: 80px;
-    display: flex;
-    justify-content: space-between;
-    gap: max(12vw,20px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
 
-}
-.cart-total{
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px
-}
-.cart-total-details{
-    display: flex;
-    justify-content: space-between;
-    color: #555;
-
-}
-.cart-total hr{
-    margin: 10px 0px;
-}
-.cart-total button{
-    border: none;
-    color: white;
-    background-color: tomato;
-    width: max(15vw,20px);
-    padding: 12px 0px;
-    border-radius: 4px;
-    cursor: pointer;
-
-}
+.cart-total,
 .cart-promocode{
-    flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 14px;
 }
-.cart-promoce{
-    color: #555;
 
+.cart-total h2{
+  margin: 0 0 12px;
 }
+
+.cart-total-details{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+}
+
+.cart-total-details b{
+  color: var(--text);
+}
+
+.cart-total button{
+  width: 100%;
+  margin-top: 12px;
+  border: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: white;
+  font-weight: 800;
+}
+
+.cart-total button:disabled{
+  opacity: .6;
+  cursor: not-allowed;
+}
+
 .cart-promocode-input{
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #eaeaea;
-    border-radius: 4px;
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
 
-}
 .cart-promocode-input input{
-    background: transparent;
-    border: none;
-    outline: none;
-    padding-left: 10px;
+  flex: 1;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
+
 .cart-promocode-input button{
-    width: max(10vw, 15px);
-    padding: 12px 5px;
+  border: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(17,24,39,.08);
+  font-weight: 800;
 }
-@media(max-width:750px){
-    .cart-bottom{
-        flex-direction: column-reverse;
-    }
-    .cart-promocode{
-        justify-content: start;
-    }
+
+@media (max-width: 920px){
+  .cart-bottom{ grid-template-columns: 1fr; }
+  .cart-items-title{
+    grid-template-columns: 70px 1.6fr 0.8fr 0.7fr 0.8fr 0.4fr;
+  }
+}
+@media (max-width: 620px){
+  .cart-items-title{
+    grid-template-columns: 70px 1.6fr 0.8fr;
+  }
+  .cart-items-title p:nth-child(3),
+  .cart-items-title p:nth-child(4),
+  .cart-items-title p:nth-child(5),
+  .cart-items-title p:nth-child(6){
+    display:none;
+  }
+  .cart-items-item p:nth-child(3),
+  .cart-items-item p:nth-child(4),
+  .cart-items-item p:nth-child(5),
+  .cart-items-item button{
+    display:none;
+  }
 }

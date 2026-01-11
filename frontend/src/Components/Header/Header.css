@@ -1,66 +1,53 @@
-.header{
-    height: 34vw;
-    margin: 30px auto;
-    background: url('/header_img.png') no-repeat;
-    background-size: contain;
-    position: relative;
-}
-.header-contents{
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 1.5vw;
-    max-width: 50%;
-    bottom: 26%;
-    left: 2vw;
-    animation: fadeIn 3s;
+.header {
+  margin-top: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(17,24,39,.12);
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+
+  /* ✅ image from public/ */
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,.55), rgba(0,0,0,.15)),
+    url("/header_img.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.header-contents h2{
-    font-weight: 500;
-    color: white;
-    font-size: max(4.5vw,22px);
-}
-.header-contents p{
-    color: white;
-    font-size: 1vw;
-}
-.header-contents button{
-    border: none;
-    color: #747474;
-    font-weight: 500;
-    padding: 1vw 2.5vw;
-    background-color: white;
-    font-size: max(1vw, 13px);
-    border-radius: 50px;
-
+.header-contents {
+  padding: 56px 22px;
+  max-width: 720px;
+  color: #fff;
 }
 
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.header-contents h2 {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.1;
 }
-@media (max-width:1050px){
-    .header-contents{
-        max-width: 45%;
-    }
-}
-@media (max-width:750px){
-    .headers-contents{
-        max-width: 65%;
-    }
-    .headers-contents p{
-        display: none;
 
-    }
-    .header-contents button{
-        padding: 2vw 4vw;
-    }
+.header-contents p {
+  margin: 0 0 18px;
+  color: rgba(255,255,255,.88);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.header-contents button {
+  border: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff4c24, #ff7a45);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(255,76,36,.25);
+}
+
+.header-contents button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 520px) {
+  .header-contents { padding: 38px 16px; }
 }

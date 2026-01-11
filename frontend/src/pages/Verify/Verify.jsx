@@ -1,40 +1,57 @@
-import React, { useContext, useEffect } from 'react'
-import './Verify.css'
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { StoreContext } from '../../Context/StoreContext';
-import axios from 'axios';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import "./Verify.css";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { StoreContext } from "../../Context/StoreContext";
+import axios from "axios";
 
 const Verify = () => {
-    const [searchParams,setSearchParams] = useSearchParams();
-    const success = searchParams.get("success")
-    const orderId = searchParams.get("orderId")
-    const [url] = useContext(StoreContext);
-    const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const success = searchParams.get("success");
+  const orderId = searchParams.get("orderId");
+
+  const { url } = useContext(StoreContext);
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const calledRef = useRef(false); // prevents double call in React StrictMode
+
+  useEffect(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
 
     const verifyPayment = async () => {
-        const response = await axios.post(url+"/api/order/verify",{success,orderId});
-        if (response.data.success) {
-            navigate("/myorders");
+      // basic validation
+      if (!success || !orderId) {
+        navigate("/", { replace: true });
+        return;
+      }
 
-        }
-        else{
-            navigate("/")
-        }
-    }
-    useEffect(() => {
-        verifyPayment()
-    },[])
+      try {
+        const res = await axios.post(`${url}/api/order/verify`, {
+          success,
+          orderId,
+        });
 
-    console.log(success,orderId);
+        navigate(res.data?.success ? "/myorders" : "/", { replace: true });
+      } catch (err) {
+        navigate("/", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyPayment();
+  }, [url, success, orderId, navigate]);
 
   return (
-    <div className='verify'>
-        <div>
-
-        </div>
-      
+    <div className="verify">
+      {loading && (
+        <p className="verify-text">
+          Verifying your payment, please wait…
+        </p>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Verify
+export default Verify;

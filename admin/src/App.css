@@ -1,0 +1,33 @@
+.admin-shell {
+  min-height: 100vh;
+  background: #f7f7fb;
+}
+
+/* Layout: sidebar + content */
+.app-content {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  align-items: start;
+}
+
+/* Main content area */
+.admin-main {
+  padding: 18px;
+  min-height: calc(100vh - 64px); /* navbar height */
+}
+
+/* Nice default for headings inside pages */
+.admin-main h2,
+.admin-main h3 {
+  margin-top: 0;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .app-content {
+    grid-template-columns: 1fr;
+  }
+  .admin-main {
+    padding: 14px;
+  }
+}

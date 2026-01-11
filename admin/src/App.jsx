@@ -1,34 +1,44 @@
-import React from 'react'
-import Navbar from './Components/Navbar/Navbar'
-import Sidebar from './Components/Sidebar/Sidebar'
-import { Routes, Route } from 'react-router-dom'
-import Add from './Pages/Add/Add'
-import List from './Pages/List/List'
-import Orders from './Pages/Orders/Orders'
-import { ToastContainer} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'
-import Dashboard from './pages/Dashboard/Dashboard';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-const App = () => {
+import ProtectedRoute from "./Components/ProtectedRoute";
+
+import SignInPage from "./Pages/SignInPage/SignInPage";
+import SignUpPage from "./Pages/SignUpPage/SignUpPage";
+
+import AdminLayout from "./Layout/AdminLayout";
+
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import Add from "./Pages/Add/Add";
+import List from "./Pages/List/List";
+import Orders from "./Pages/Orders/Orders";
+
+export default function App() {
   return (
-    <div>
-      <ToastContainer/>
-      <Navbar/>
-      <hr/>
-      <div className="app-content">
-        <Sidebar/>
-        <Routes>
-          <Route path="/add" element={<Add/>}/>
-           <Route path="/list" element={<List/>}/>
-            <Route path="/orders" element={<Orders/>}/>
-            <Route path="/dashboard" element={<Dashboard />} />
+    <Routes>
+      {/* Public routes */}
+      <Route path="/sign-in/*" element={<SignInPage />} />
+      <Route path="/sign-up/*" element={<SignUpPage />} />
 
-        </Routes>
+      {/* Protected admin layout */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="add" element={<Add />} />
+        <Route path="list" element={<List />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
+      </Route>
 
-      </div>
-      
-    </div>
-  )
+      {/* global fallback */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
 }
-
-export default App

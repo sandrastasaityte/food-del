@@ -1,46 +1,43 @@
-import React from 'react';
-import './Sidebar.css';
-import { assets } from '../../assets/assets';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import "./Sidebar.css";
+import { assets } from "../../assets/assets";
+import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
+const items = [
+  { to: "/dashboard", icon: assets.dashboard_icon, label: "Dashboard" },
+  { to: "/add", icon: assets.add_icon, label: "Add Items" },
+  { to: "/list", icon: assets.list_icon, label: "List Items" },
+  { to: "/orders", icon: assets.order_icon, label: "Orders" },
+];
+
+const Sidebar = ({ open = false, onClose }) => {
   return (
-    <div className="sidebar">
-      <div className="sidebar-options">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) => isActive ? "sidebar-option active" : "sidebar-option"}
-        >
-          <img src={assets.dashboard_icon} alt="Dashboard" />
-          <p>Dashboard</p>
-        </NavLink>
+    <>
+      {/* mobile overlay */}
+      <div
+        className={open ? "sidebar-overlay show" : "sidebar-overlay"}
+        onClick={onClose}
+      />
 
-        <NavLink
-          to="/add"
-          className={({ isActive }) => isActive ? "sidebar-option active" : "sidebar-option"}
-        >
-          <img src={assets.add_icon} alt="Add" />
-          <p>Add Items</p>
-        </NavLink>
-
-        <NavLink
-          to="/list"
-          className={({ isActive }) => isActive ? "sidebar-option active" : "sidebar-option"}
-        >
-          <img src={assets.list_icon} alt="List" />
-          <p>List Items</p>
-        </NavLink>
-
-        <NavLink
-          to="/orders"
-          className={({ isActive }) => isActive ? "sidebar-option active" : "sidebar-option"}
-        >
-          <img src={assets.order_icon} alt="Orders" />
-          <p>Orders</p>
-        </NavLink>
-      </div>
-    </div>
+      <nav className={open ? "sidebar open" : "sidebar"} aria-label="Admin sidebar navigation">
+        <div className="sidebar-options">
+          {items.map(({ to, icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                isActive ? "sidebar-option active" : "sidebar-option"
+              }
+            >
+              <img src={icon} alt={label} loading="lazy" />
+              <p>{label}</p>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </>
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

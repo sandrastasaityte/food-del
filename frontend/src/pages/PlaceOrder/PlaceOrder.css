@@ -1,43 +1,80 @@
 .place-order{
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    gap:50px;
-    margin-top: 100px;
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 14px;
+  align-items: start;
 }
-.place-order-left{
-    width: 100%;
-    max-width: max(30%,500px)
 
+.place-order-left,
+.place-order-right{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 14px;
 }
+
 .place-order-left .title{
-    font-size: 30px;
-    font-weight: 600;
-    margin-bottom: 50px;
-}
-.place-order-left input{
-    margin-bottom: 15px;
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #c5c5c5;
-    border-radius: 4px;
-    outline-color: tomato;
-
-
-}
-.place-order-left .multi-fields{
-    display: flex;
-    gap: 10px;
-}
-.place-order-right{
-    width: 100%;
-    max-width: max(40%, 500px)
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 900;
 }
 
-.place-order-right{
-   width: 100%;
-   max-width: max(40%,500px)
+.multi-fields{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-.place-order .cart-total-button{
-    margin-top: 30px;
+
+.place-order input{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.place-order input:focus{
+  border-color: rgba(255,76,36,.45);
+  box-shadow: 0 0 0 4px rgba(255,76,36,.10);
+}
+
+.place-order-right h2{
+  margin: 0 0 12px;
+}
+
+.place-order-right .cart-total-details{
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+}
+
+.place-order-right button{
+  width: 100%;
+  margin-top: 12px;
+  border: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+  color: white;
+  font-weight: 900;
+}
+
+.place-order-right button:disabled{
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.place-order-error{
+  margin-top: 6px;
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+@media (max-width: 980px){
+  .place-order{ grid-template-columns: 1fr; }
+  .multi-fields{ grid-template-columns: 1fr; }
 }
