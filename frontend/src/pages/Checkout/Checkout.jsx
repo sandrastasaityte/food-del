@@ -5,8 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
-  const { cartItems, food_list, getTotalCartAmount, token, url } =
-    useContext(StoreContext);
+  const { cartItems, food_list, token, url } = useContext(StoreContext);
 
   const navigate = useNavigate();
 
@@ -22,11 +21,14 @@ const Checkout = () => {
     phone: "",
   });
 
-  const [promo, setPromo] = useState(""); // Promo code input
-  const [discount, setDiscount] = useState(0); // Discount amount
+  const [promo, setPromo] = useState("");
+  const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [promoMessage, setPromoMessage] = useState("");
+
+  // ✅ Payment method
+  const [paymentMethod, setPaymentMethod] = useState("card"); // card | cod | paypal
 
   const cartSummary = useMemo(() => {
     return food_list
@@ -53,10 +55,9 @@ const Checkout = () => {
     setError("");
     setPromoMessage("");
 
-    // Example: fixed promo codes
     const validPromos = {
-      SAVE10: 0.1, // 10% discount
-      SAVE5: 5, // £5 discount
+      SAVE10: 0.1,
+      SAVE5: 5,
     };
 
     if (!promo) {
@@ -69,12 +70,11 @@ const Checkout = () => {
       const value = validPromos[promo];
       let discountValue = 0;
 
-      // Percentage discount
-      if (value < 1) {
-        discountValue = totalBeforeDiscount * value;
-      } else {
-        discountValue = value; // fixed amount
-      }
+      if (value < 1) discountValue = totalBeforeDiscount * value;
+      else discountValue = value;
+
+      // ✅ never allow discount bigger than total
+      discountValue = Math.min(discountValue, totalBeforeDiscount);
 
       setDiscount(Number(discountValue.toFixed(2)));
       setPromoMessage(`Promo applied! You saved £${discountValue.toFixed(2)}.`);
@@ -98,6 +98,12 @@ const Checkout = () => {
       return;
     }
 
+    // ✅ block paypal for now (UI only)
+    if (paymentMethod === "paypal") {
+      setError("PayPal is not set up yet.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -112,8 +118,30 @@ const Checkout = () => {
         amount: total,
         discount,
         promoCode: promo || null,
+
+        // ✅ send selected payment
+        paymentMethod, // "card" or "cod"
       };
 
+      // ✅ If COD -> call a different endpoint OR same endpoint with paymentMethod
+      if (paymentMethod === "cod") {
+        // Option A: use same endpoint and backend checks paymentMethod
+        const res = await axios.post(`${url}/api/order/place`, orderData, {
+          headers: { token },
+        });
+
+        if (res.data?.success) {
+          // go to success page or orders page
+          navigate("/order-success"); // create this route/page
+        } else {
+          setError(res.data?.message || "Order failed");
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Card payment -> Stripe session
       const res = await axios.post(`${url}/api/order/place`, orderData, {
         headers: { token },
       });
@@ -225,6 +253,53 @@ const Checkout = () => {
               Apply
             </button>
             {promoMessage && <p className="promo-message">{promoMessage}</p>}
+          </div>
+
+          {/* ✅ PAYMENT OPTIONS */}
+          <div className="payment-options">
+            <h3>Payment Method</h3>
+
+            <label className={`pay-option ${paymentMethod === "card" ? "active" : ""}`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="card"
+                checked={paymentMethod === "card"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <div className="pay-option-text">
+                <b>Card (Stripe)</b>
+                <p>Pay securely with your card.</p>
+              </div>
+            </label>
+
+            <label className={`pay-option ${paymentMethod === "cod" ? "active" : ""}`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={paymentMethod === "cod"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <div className="pay-option-text">
+                <b>Cash on Delivery</b>
+                <p>Pay when the order arrives.</p>
+              </div>
+            </label>
+
+            <label className={`pay-option ${paymentMethod === "paypal" ? "active" : ""}`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="paypal"
+                checked={paymentMethod === "paypal"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <div className="pay-option-text">
+                <b>PayPal (coming soon)</b>
+                <p>We’ll enable this soon.</p>
+              </div>
+            </label>
           </div>
 
           {error && <p className="checkout-error">{error}</p>}

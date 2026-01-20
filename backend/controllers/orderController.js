@@ -4,75 +4,94 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Example promo codes
 const promoCodes = {
-  SAVE10: { type: "percent", value: 10 }, // 10% off
-  SAVE5: { type: "fixed", value: 5 },     // $5 off
+  SAVE10: { type: "percent", value: 10 },
+  SAVE5: { type: "fixed", value: 5 },
 };
 
-const placeOrder = async (req, res) => {
-  const frontend_url = "http://localhost:5177"; // your client
-  try {
-    let { items, amount, address, promoCode } = req.body;
+export const placeOrder = async (req, res) => {
+  const frontend_url = "http://localhost:5177";
 
-    // Apply promo code
+  try {
+    let { items, address, promoCode, paymentMethod } = req.body;
+
+    paymentMethod = paymentMethod || "card"; // card | cod
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "Cart is empty." });
+    }
+
+    // ✅ calculate totals server-side
+    const subtotal = items.reduce(
+      (sum, item) => sum + Number(item.price) * Number(item.quantity),
+      0
+    );
+
+    const deliveryFee = subtotal > 0 ? 2 : 0;
+    const totalBeforeDiscount = subtotal + deliveryFee;
+
+    // ✅ promo
     let discount = 0;
     if (promoCode && promoCodes[promoCode]) {
       const promo = promoCodes[promoCode];
-      if (promo.type === "percent") {
-        discount = (amount * promo.value) / 100;
-      } else {
-        discount = promo.value;
-      }
-      amount = amount - discount;
+
+      discount =
+        promo.type === "percent"
+          ? (totalBeforeDiscount * promo.value) / 100
+          : promo.value;
+
+      discount = Math.min(discount, totalBeforeDiscount);
     }
+
+    const finalAmount = Number((totalBeforeDiscount - discount).toFixed(2));
 
     const newOrder = new orderModel({
       userId: req.userId,
       items,
-      amount,
+      amount: finalAmount,
       address,
       promoCode: promoCode || null,
       discount,
+      paymentMethod,
+      paymentStatus: paymentMethod === "cod" ? "pending" : "unpaid",
+      orderStatus: "placed",
     });
 
     await newOrder.save();
 
-    // clear cart
-    await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
+    // ✅ COD: clear cart now and finish
+    if (paymentMethod === "cod") {
+      await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
 
-    // Stripe line items
+      return res.json({
+        success: true,
+        message: "Order placed (Cash on Delivery).",
+        orderId: newOrder._id,
+      });
+    }
+
+    // ✅ CARD: create Stripe session (do NOT clear cart yet)
     const line_items = items.map((item) => ({
       price_data: {
-        currency: "usd",
+        currency: "gbp",
         product_data: { name: item.name },
         unit_amount: Math.round(Number(item.price) * 100),
       },
       quantity: item.quantity,
     }));
 
-    // delivery
-    line_items.push({
-      price_data: {
-        currency: "usd",
-        product_data: { name: "Delivery Charges" },
-        unit_amount: Math.round(2 * 100),
-      },
-      quantity: 1,
-    });
-
-    // Apply discount in Stripe as a separate line item (optional)
-    if (discount > 0) {
+    if (deliveryFee > 0) {
       line_items.push({
         price_data: {
-          currency: "usd",
-          product_data: { name: `Discount (${promoCode})` },
-          unit_amount: -Math.round(discount * 100),
+          currency: "gbp",
+          product_data: { name: "Delivery Charges" },
+          unit_amount: Math.round(deliveryFee * 100),
         },
         quantity: 1,
       });
     }
 
+    // ⚠️ Don't add negative discount line items in Stripe Checkout
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
@@ -80,9 +99,79 @@ const placeOrder = async (req, res) => {
       cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
     });
 
-    res.json({ success: true, session_url: session.url });
+    return res.json({ success: true, session_url: session.url });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Error" });
+    console.error("placeOrder error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error placing order" });
+  }
+};
+
+export const verifyOrder = async (req, res) => {
+  try {
+    // Your frontend Verify page usually POSTs these:
+    const { success, orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: "Missing orderId" });
+    }
+
+    if (success === true || success === "true") {
+      // ✅ mark paid
+      const order = await orderModel.findByIdAndUpdate(
+        orderId,
+        { paymentStatus: "paid" },
+        { new: true }
+      );
+
+      // ✅ clear cart after successful payment
+      if (order?.userId) {
+        await userModel.findByIdAndUpdate(order.userId, { cartData: {} });
+      }
+
+      return res.json({ success: true, message: "Payment verified" });
+    } else {
+      // ✅ cancelled / failed
+      await orderModel.findByIdAndUpdate(orderId, {
+        orderStatus: "cancelled",
+        paymentStatus: "unpaid",
+      });
+
+      return res.json({ success: true, message: "Payment cancelled" });
+    }
+  } catch (error) {
+    console.error("verifyOrder error:", error);
+    return res.status(500).json({ success: false, message: "Verify error" });
+  }
+};
+
+// ====== keep your existing functions or use these ======
+
+export const userOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json({ success: true, data: orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching orders" });
+  }
+};
+
+export const listOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, data: orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching orders" });
+  }
+};
+
+export const updateStatus = async (req, res) => {
+  try {
+    const { orderId, orderStatus } = req.body;
+    await orderModel.findByIdAndUpdate(orderId, { orderStatus });
+    res.json({ success: true, message: "Status updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating status" });
   }
 };
